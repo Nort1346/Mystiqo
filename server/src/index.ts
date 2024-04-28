@@ -109,6 +109,13 @@ io.on('connection', (socket) => {
     socket.on('getUserId', () => {
         socket.emit('userId', users[socket.id].id);
     });
+
+    socket.on('typing', () => {
+        console.log('TYPING')
+        const user = users[socket.id];
+        if (user && user.roomId)
+            socket.broadcast.to(user.roomId).emit('typing', user.id);
+    });
 });
 
 

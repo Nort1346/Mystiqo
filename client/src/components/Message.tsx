@@ -2,7 +2,7 @@ import React from "react";
 import { MessageData } from "../App";
 
 function Message({ message, userId }: { message: MessageData, userId: string }) {
-    const isMe = userId == message.authorId;
+    const isMe = userId === message.authorId;
 
     const formatContent = (text: string) => {
         const linkRegex = /(https?:\/\/[^\s]+)/g;
@@ -20,7 +20,7 @@ function Message({ message, userId }: { message: MessageData, userId: string }) 
         });
     };
 
-    if (message.authorId == 'SYSTEM') {
+    if (message.authorId === 'SYSTEM') {
         return (
             <div className={`d-flex justify-content-center my-2`}>
                 <span className={`fw-bold py-1 px-2 w-auto text-wrap text-break mx-5`}>

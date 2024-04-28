@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, RefObject, DetailedHTMLProps } from 'react';
+import React, { useEffect, useState, useRef, RefObject } from 'react';
 import { Button, Form, Container, InputGroup } from 'react-bootstrap';
 import { socket } from './socket';
 import './App.css';
@@ -32,6 +32,7 @@ function App() {
   const [userId, setUserId] = useState<string>('');
   const messageContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const ContainerRef: RefObject<HTMLDivElement> = useRef(null);
+  const TypingContainerRef: RefObject<HTMLDivElement> = useRef(null);
 
   useEffect(() => {
     function onUserId(userId: string) {
@@ -46,8 +47,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    function onMessage(userId: string, content: string) {
-      setMessages((mess: any) => [...mess, { content: content, authorId: userId }]);
+    let timeout: NodeJS.Timeout | null = null;
+    function onMessage(authorId: string, content: string) {
+      if (authorId != userId) {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        resetTyping();
+      }
+      setMessages((mess: any) => [...mess, { content: content, authorId: authorId }]);
     }
 
     function onJoinedRoom() {
@@ -61,12 +69,34 @@ function App() {
       setChatStatus(ChatStatus.inactive);
     }
 
+    function onTyping(userid: string) {
+      if (userid === userId) return;
+      if (TypingContainerRef.current) {
+        TypingContainerRef.current.innerHTML = `Stranger is typing...`;
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(() => {
+          resetTyping();
+        }, 5000);
+      }
+    }
+
+    function resetTyping() {
+      if (TypingContainerRef.current) {
+        TypingContainerRef.current.innerHTML = '';
+      }
+    }
+
     socket.on('strangerLeftRoom', onStrangerLeftRoom);
     socket.on('message', onMessage);
     socket.on('joinedRoom', onJoinedRoom);
+    socket.on('typing', onTyping);
     return () => {
       socket.off('message', onMessage);
       socket.off('joinedRoom', onJoinedRoom);
+      socket.off('typing', onTyping);
     };
   }, []);
 
@@ -92,6 +122,9 @@ function App() {
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value.length > inputValue.length) {
+      socket.emit('typing');
+    }
     setInputValue(event.target.value);
   };
 
@@ -108,7 +141,7 @@ function App() {
       setInputValue('');
     }
   }
-  console.log(ContainerRef.current?.offsetWidth);
+
   return (
     <>
       <NavBar />
@@ -124,38 +157,39 @@ function App() {
           <Queue cancelQueue={cancelQueue} />
         )}
         {status === Status.chat && (
-         <>
-         <div className='position-relative h-70vh mb-3 overflow-auto' style={{ height: `calc(100vh - 64px - 50px - 3em)`, width: '100%' }} ref={messageContainerRef}>
-           <div className='p-3 d-flex flex-column'>
-             {messages.map((ele, index) => (
-               <Message key={index} message={ele} userId={userId} />
-             ))}
-           </div>
-         </div>
-         <div className="position-fixed bottom-0 start-50 translate-middle-x mb-3 px-2" style={{ maxWidth: ContainerRef.current?.offsetWidth, width: ContainerRef.current?.offsetWidth, height: '50px' }}>
-           <InputGroup className="mb-3">
-             <Button variant='info' onClick={nextTalk}>
-               Next
-             </Button>
-             <Form.Control
-               placeholder="Message to stranger..."
-               aria-label="message"
-               onKeyDown={handleKeyDown}
-               type="text"
-               value={inputValue}
-               onChange={handleChange}
-               as="textarea"
-               size='lg'
-               rows={1}
-               disabled={chatStatus === ChatStatus.inactive}
-             />
-             <Button onClick={sendMessage} disabled={chatStatus === ChatStatus.inactive}>
-               Send
-             </Button>
-           </InputGroup>
-         </div>
-       </>
-       
+          <>
+            <div className='position-relative h-70vh mb-3 overflow-auto' style={{ height: `calc(100vh - 64px - 50px - 3em)`, width: '100%' }} ref={messageContainerRef}>
+              <div className='p-3 d-flex flex-column'>
+                {messages.map((ele, index) => (
+                  <Message key={index} message={ele} userId={userId} />
+                ))}
+              </div>
+            </div>
+            <div className="position-fixed start-50 translate-middle-x mb-3 px-2" style={{ bottom: '1em', maxWidth: ContainerRef.current?.offsetWidth, width: ContainerRef.current?.offsetWidth, height: '50px' }}>
+              <InputGroup>
+                <Button variant='info' onClick={nextTalk}>
+                  Next
+                </Button>
+                <Form.Control
+                  placeholder="Message to stranger..."
+                  aria-label="message"
+                  onKeyDown={handleKeyDown}
+                  type="text"
+                  value={inputValue}
+                  onChange={handleChange}
+                  as="textarea"
+                  size='lg'
+                  rows={1}
+                  disabled={chatStatus === ChatStatus.inactive}
+                />
+                <Button onClick={sendMessage} disabled={chatStatus === ChatStatus.inactive}>
+                  Send
+                </Button>
+              </InputGroup>
+              <div ref={TypingContainerRef}></div>
+            </div>
+          </>
+
 
         )}
         {status === Status.home && (
