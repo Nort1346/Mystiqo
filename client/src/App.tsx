@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, RefObject } from 'react';
-import { Button, Form, Container, InputGroup } from 'react-bootstrap';
+import { Button, Form, Container, InputGroup, Modal, Col, Row, Stack, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 import { socket } from './socket';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -7,6 +7,8 @@ import Message from './components/Message';
 import Footer from './components/Footer';
 import NavBar from './components/Navbar';
 import Queue from './components/Queue';
+import { changeLanguage } from 'i18next';
+import i18n from './i18n';
 
 export interface MessageData {
   content: string,
@@ -14,15 +16,27 @@ export interface MessageData {
 }
 
 enum Status {
-  'home',
-  'queue',
-  'chat'
+  home,
+  queue,
+  chat
 }
 
 enum ChatStatus {
-  'active',
-  'inactive'
+  active,
+  inactive
 }
+
+enum Language {
+  English = 'en',
+  Polish = 'pl'
+};
+
+enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Croissant = 'croissant',
+  PreferNotSay = 'preferNotSay'
+};
 
 function App() {
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -30,6 +44,12 @@ function App() {
   const [chatStatus, setChatStatus] = useState<ChatStatus>(ChatStatus.inactive);
   const [inputValue, setInputValue] = useState('');
   const [userId, setUserId] = useState<string>('');
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const handleCloseConfigModal = () => setShowConfigModal(false);
+  const handleShowConfigModal = () => setShowConfigModal(true);
+  const [gender, setGender] = useState<Gender | string>(localStorage.getItem('gender') ?? Gender.PreferNotSay);
+  const [language, setLanguage] = useState<Language | string>(i18n.language);
+  const [preferGender, setPreferGender] = useState<Gender | string>(localStorage.getItem('preferGender') ?? Gender.PreferNotSay);
   const messageContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const ContainerRef: RefObject<HTMLDivElement> = useRef(null);
   const TypingContainerRef: RefObject<HTMLDivElement> = useRef(null);
@@ -106,13 +126,41 @@ function App() {
     }
   }, [messages]);
 
+  const handleGenderChange = (value: Gender) => {
+    setGender(value);
+    localStorage.setItem('gender', value);
+  };
+
+  const handlePreferGenderChange = (value: Gender) => {
+    setPreferGender(value);
+    localStorage.setItem('preferGender', value);
+  };
+
+  const handleLanguageChange = (language: string) => {
+    changeLanguage(language, (err, t) => {
+      if (err) return console.error('Something went wrong loading language', err);
+      setLanguage(language);
+    });
+  };
+
   const joinQueue = () => {
-    socket.emit('joinQueue');
+    socket.emit('joinQueue', { gender: gender, language: language, preferGender: preferGender });
     setStatus(Status.queue);
   }
 
   const cancelQueue = () => {
     socket.emit('cancelQueue');
+    setStatus(Status.home);
+  }
+
+  const gotoHome = () => {
+    if (status === Status.chat) {
+      if (chatStatus === ChatStatus.active)
+        socket.emit('leaveRoom');
+      setMessages([]);
+    } else if (status === Status.queue) {
+      socket.emit('cancelQueue');
+    }
     setStatus(Status.home);
   }
 
@@ -144,14 +192,56 @@ function App() {
 
   return (
     <>
-      <NavBar />
+      <NavBar goToHome={gotoHome} />
       <Container ref={ContainerRef}>
         {status === Status.home && (
-          <div className='h-75vh d-flex align-items-center justify-content-center flex-column text-center'>
-            <h1>Mystiqo</h1>
-            <p className='text-primary-emphasis'>Talk with strangers</p>
-            <Button variant='light rounded-pill' onClick={joinQueue} size="lg">Start Chatting</Button>
-          </div>
+          <>
+            <div className='h-75vh d-flex align-items-center justify-content-center flex-column text-center'>
+              <h1>Mystiqo</h1>
+              <p className='text-primary-emphasis'>Talk with strangers</p>
+              <Button variant='light rounded-pill' className='mb-2' onClick={joinQueue} size="lg">Start Chatting</Button>
+              <Button variant='dark rounded-pill' onClick={handleShowConfigModal}>Configure</Button>
+            </div>
+            <Modal show={showConfigModal} onHide={handleCloseConfigModal} size='xl' fullscreen={'sm-down'}>
+              <Modal.Header closeButton>
+                <Modal.Title>Improve your experiences</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <h5>What is your gender?</h5>
+                <div className='d-flex justify-content-center mb-3'>
+                  <ToggleButtonGroup type="radio" name="gender-options" value={gender} onChange={handleGenderChange}>
+                    <ToggleButton variant="secondary rounded-pill" className='mx-1' value={Gender.PreferNotSay} id={'tbg-notsay-gender'}>👤 Prefer not say</ToggleButton>
+                    <ToggleButton variant="primary rounded-pill" className='mx-1' value={Gender.Male} id={'tbg-male-gender'}>👨 Male</ToggleButton>
+                    <ToggleButton variant="success rounded-pill" className='mx-1' value={Gender.Female} id={'tbg-female-gender'}>👩 Female</ToggleButton>
+                    <ToggleButton variant="warning rounded-pill" className='mx-1' value={Gender.Croissant} id={'tbg-croissant-gender'}>🥐 Croissant</ToggleButton>
+                  </ToggleButtonGroup>
+                </div>
+                <hr />
+                <h5>In which language do you prefer to chat?</h5>
+                <div className='d-flex justify-content-center mb-3'>
+                  <ToggleButtonGroup type="radio" name="language-options" value={language} onChange={handleLanguageChange}>
+                    <ToggleButton variant="danger rounded-pill" className='mx-1' value={Language.English} id={'tbg-english-language'}>🇺🇸 English</ToggleButton>
+                    <ToggleButton variant="light rounded-pill" className='mx-1' value={Language.Polish} id={'tbg-polish-language'}>🇵🇱 Polish</ToggleButton>
+                  </ToggleButtonGroup>
+                </div>
+                <hr />
+                <h5>Which gender would you like to chat with?</h5>
+                <div className='d-flex justify-content-center mb-3'>
+                  <ToggleButtonGroup type="radio" name="prefer-gender-options" value={preferGender} onChange={handlePreferGenderChange}>
+                    <ToggleButton variant="secondary rounded-pill" className='mx-1' value={Gender.PreferNotSay} id={'tbg-notsay-prefer-gender'}>👤 Any</ToggleButton>
+                    <ToggleButton variant="primary rounded-pill" className='mx-1' value={Gender.Male} id={'tbg-male-prefer-gender'}>👨 Male</ToggleButton>
+                    <ToggleButton variant="success rounded-pill" className='mx-1' value={Gender.Female} id={'tbg-female-prefer-gender'}>👩 Female</ToggleButton>
+                    <ToggleButton variant="warning rounded-pill" className='mx-1' value={Gender.Croissant} id={'tbg-croissant-prefer-gender'}>🥐 Croissant</ToggleButton>
+                  </ToggleButtonGroup>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseConfigModal}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
         )}
         {status === Status.queue && (
           <Queue cancelQueue={cancelQueue} />

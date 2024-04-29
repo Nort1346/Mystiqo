@@ -23,8 +23,26 @@ interface User {
     roomId: string | null
 }
 
+enum Language {
+    English = 'en',
+    Polish = 'pl'
+};
+
+enum Gender {
+    Male = 'male',
+    Female = 'female',
+    Croissant = 'croissant',
+    PreferNotSay = 'preferNotSay'
+};
+
+interface QueueItem {
+    gender: Gender;
+    language: Language;
+    preferGender: Gender;
+};
+
 const users: { [key: string]: User } = {};
-const queue: string[] = [];
+const queue: Record<string, QueueItem> = {};
 
 io.on('connection', (socket) => {
     if (!users[socket.id])
@@ -32,37 +50,48 @@ io.on('connection', (socket) => {
     io.emit('onlineCount', Object.keys(users).length);
     console.log(Object.keys(users).length);
 
-    socket.on('joinQueue', () => {
-        if (queue.includes(socket.id)) return;
+    socket.on('joinQueue', (filter: { gender: Gender, language: Language, preferGender: Gender }) => {
+        if (queue[socket.id]) return;
         const user = users[socket.id];
         if (user && user.roomId) {
             socket.leave(user.roomId);
             io.to(user.roomId).emit('strangerLeftRoom');
             users[socket.id].roomId = null;
         }
-        queue.push(socket.id);
-        console.log(`User ${socket.id} joined the queue`);
 
-        if (queue.length >= 2) {
-            const user1Id = queue.shift()!;
-            const user2Id = queue.shift()!;
+        const match = Object.values(queue).find(item =>
+            (item.gender === filter.preferGender || filter.preferGender === Gender.PreferNotSay) &&
+            (item.preferGender === filter.gender || item.preferGender === Gender.PreferNotSay) &&
+            item.language === filter.language
+        );
+
+        if (match) {
             const roomId = `room-${uuidv4()}`;
+            const matchedUserId = Object.keys(queue).find(id => queue[id] === match)!;
 
-            const socket1 = io.sockets.sockets.get(user1Id);
-            const socket2 = io.sockets.sockets.get(user2Id);
+            const socket1 = io.sockets.sockets.get(matchedUserId);
+            const socket2 = io.sockets.sockets.get(socket.id);
+
             socket1?.join(roomId);
             socket2?.join(roomId);
-            users[user1Id].roomId = roomId;
-            users[user2Id].roomId = roomId;
+
+            users[matchedUserId].roomId = roomId;
+            users[socket.id].roomId = roomId;
+
+            delete queue[matchedUserId];
+            delete queue[socket.id];
 
             io.to(roomId).emit('joinedRoom');
-            console.log(`Room ${roomId} created and users ${user1Id} and ${user2Id} joined`);
+            console.log(`Room ${roomId} created and users ${matchedUserId} and ${socket.id} joined`);
+        } else {
+            queue[socket.id] = filter;
+            console.log(`User ${socket.id} joined the queue`);
         }
     });
 
     socket.on('cancelQueue', () => {
-        if (!queue.includes(socket.id)) return;
-        queue.splice(queue.findIndex(e => e == socket.id), 1);
+        if (!queue[socket.id]) return;
+        delete queue[socket.id];
         console.log(`User ${socket.id} cancel queue`);
         console.log(queue);
     });
@@ -93,9 +122,8 @@ io.on('connection', (socket) => {
             io.to(user.roomId).emit('strangerLeftRoom');
         }
         delete users[socket.id];
-        const index = queue.indexOf(socket.id);
-        if (index !== -1) {
-            queue.splice(index, 1);
+        if (queue[socket.id]) {
+            delete queue[socket.id];
             console.log(`User ${socket.id} removed from queue`);
         }
         console.log(Object.keys(users).length);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navbar, Nav, Alert } from 'react-bootstrap';
 import { socket } from "../socket";
 
-function NavBar() {
+function NavBar({ goToHome }: { goToHome: () => void }) {
     const [onlineCount, setOnlineCount] = useState<number>(0);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ function NavBar() {
 
     return (
         <Navbar className='px-3'>
-            <Navbar.Brand>Mystiqo</Navbar.Brand>
+            <Navbar.Brand onClick={goToHome}>Mystiqo</Navbar.Brand>
             <Nav className="ms-auto d-flex align-items-center">
                 <Alert variant="success" className='rounded-pill font-monospace p-1 m-0 fs-6'>
                     Online: {onlineCount}

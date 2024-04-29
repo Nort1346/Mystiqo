@@ -5,3 +5,7 @@
 .h-75vh {
   height: 75vh;
 }
+
+.btn-gender.active {
+  border: 2px solid #000; /* zmieniamy obramowanie dla aktywnego przycisku */
+}

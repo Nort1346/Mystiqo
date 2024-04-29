@@ -19,15 +19,30 @@ const io = new socket_io_1.Server(server, {
 });
 app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'client', 'build')));
 app.use((0, cors_1.default)());
+var Language;
+(function (Language) {
+    Language["English"] = "en";
+    Language["Polish"] = "pl";
+})(Language || (Language = {}));
+;
+var Gender;
+(function (Gender) {
+    Gender["Male"] = "male";
+    Gender["Female"] = "female";
+    Gender["Croissant"] = "croissant";
+    Gender["PreferNotSay"] = "preferNotSay";
+})(Gender || (Gender = {}));
+;
+;
 const users = {};
-const queue = [];
+const queue = {};
 io.on('connection', (socket) => {
     if (!users[socket.id])
         users[socket.id] = { id: (0, uuid_1.v4)(), roomId: null };
     io.emit('onlineCount', Object.keys(users).length);
     console.log(Object.keys(users).length);
-    socket.on('joinQueue', () => {
-        if (queue.includes(socket.id))
+    socket.on('joinQueue', (filter) => {
+        if (queue[socket.id])
             return;
         const user = users[socket.id];
         if (user && user.roomId) {
@@ -35,26 +50,32 @@ io.on('connection', (socket) => {
             io.to(user.roomId).emit('strangerLeftRoom');
             users[socket.id].roomId = null;
         }
-        queue.push(socket.id);
-        console.log(`User ${socket.id} joined the queue`);
-        if (queue.length >= 2) {
-            const user1Id = queue.shift();
-            const user2Id = queue.shift();
+        const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === Gender.PreferNotSay) &&
+            (item.preferGender === filter.gender || item.preferGender === Gender.PreferNotSay) &&
+            item.language === filter.language);
+        if (match) {
             const roomId = `room-${(0, uuid_1.v4)()}`;
-            const socket1 = io.sockets.sockets.get(user1Id);
-            const socket2 = io.sockets.sockets.get(user2Id);
+            const matchedUserId = Object.keys(queue).find(id => queue[id] === match);
+            const socket1 = io.sockets.sockets.get(matchedUserId);
+            const socket2 = io.sockets.sockets.get(socket.id);
             socket1 === null || socket1 === void 0 ? void 0 : socket1.join(roomId);
             socket2 === null || socket2 === void 0 ? void 0 : socket2.join(roomId);
-            users[user1Id].roomId = roomId;
-            users[user2Id].roomId = roomId;
+            users[matchedUserId].roomId = roomId;
+            users[socket.id].roomId = roomId;
+            delete queue[matchedUserId];
+            delete queue[socket.id];
             io.to(roomId).emit('joinedRoom');
-            console.log(`Room ${roomId} created and users ${user1Id} and ${user2Id} joined`);
+            console.log(`Room ${roomId} created and users ${matchedUserId} and ${socket.id} joined`);
+        }
+        else {
+            queue[socket.id] = filter;
+            console.log(`User ${socket.id} joined the queue`);
         }
     });
     socket.on('cancelQueue', () => {
-        if (!queue.includes(socket.id))
+        if (!queue[socket.id])
             return;
-        queue.splice(queue.findIndex(e => e == socket.id), 1);
+        delete queue[socket.id];
         console.log(`User ${socket.id} cancel queue`);
         console.log(queue);
     });
@@ -82,9 +103,8 @@ io.on('connection', (socket) => {
             io.to(user.roomId).emit('strangerLeftRoom');
         }
         delete users[socket.id];
-        const index = queue.indexOf(socket.id);
-        if (index !== -1) {
-            queue.splice(index, 1);
+        if (queue[socket.id]) {
+            delete queue[socket.id];
             console.log(`User ${socket.id} removed from queue`);
         }
         console.log(Object.keys(users).length);
