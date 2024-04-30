@@ -1,3 +1,47 @@
 {
-    
+    "Home": {
+        "mystiqoDescription": "Talk with strangers",
+        "startChatting": "Start Chatting",
+        "personalize": "Personalize"
+    },
+    "PersonalizeModal": {
+        "title": "Improve your experiences!",
+        "whatIsYourGender": "What is your gender?",
+        "inWhichLanguageDoYouPreferToChat": "In which language do you prefer to chat?",
+        "whichGenderWouldYouLikeToChatWith": "Which gender would you like to chat with?"
+    },
+    "Title": {
+        "talkWithStrangers": "Talk with strangers",
+        "waitingForStranger": "Waiting for stranger...",
+        "chattingWithStranger": "Chatting with stranger"
+    },
+    "Gender": {
+        "male": "👨 Male",
+        "female": "👩 Female",
+        "preferNotSay": "👤 Prefer not say",
+        "any": "👤 Any",
+        "croissant": "🥐 Croissant"
+    },
+    "Room": {
+        "Input": {
+            "send": "Send",
+            "next": "Next",
+            "placeholder": "Message to stranger..."
+        },
+        "System": {
+            "youJoinedToTheRoom": "You joined to the room",
+            "strangerLeftTheRoom": "Stranger left the room"
+        },
+        "strangerIsTyping": "Stranger is typing..."
+    },
+    "Queue": {
+        "waitingForStranger": "Waiting for stranger..."
+    },
+    "Button": {
+        "close": "Close",
+        "cancel": "Cancel"
+    },
+    "Footer": {
+        "allRightsReserved": "All rights reserved."
+    }
 }

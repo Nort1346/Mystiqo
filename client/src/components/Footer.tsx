@@ -1,16 +1,18 @@
 import React from "react";
 import { Row, Col } from 'react-bootstrap';
 import { FaGithub } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 function Footer() {
+    const { t } = useTranslation();
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="mx-3 mb-3">
+        <footer className="mx-3 pb-3">
             <Row>
                 <Col className="text-md-start text-center p-0" md={8} xs={12}>
-                    <p>
-                        © {currentYear} Mystiqo. All rights reserved.
+                    <p className="m-0">
+                        {`© ${currentYear} Mystiqo. ${t('Footer.allRightsReserved')}`}
                     </p>
                 </Col>
                 <Col md={4} xs={12} className="d-flex justify-content-center justify-content-md-end">

@@ -1,3 +1,47 @@
 {
-    
+    "Home": {
+        "mystiqoDescription": "Rozmawiaj z nieznajomymi",
+        "startChatting": "Rozpocznij czat",
+        "personalize": "Personalizuj"
+    },
+    "PersonalizeModal": {
+        "title": "Popraw swoje doświadczenia!",
+        "whatIsYourGender": "Jaka jest Twoja płeć?",
+        "inWhichLanguageDoYouPreferToChat": "W jakim języku wolisz rozmawiać?",
+        "whichGenderWouldYouLikeToChatWith": "Z jaką płcią chciałbyś rozmawiać?"
+    },
+    "Title": {
+        "talkWithStrangers": "Rozmawiaj z nieznajomymi",
+        "waitingForStranger": "Oczekiwanie na nieznajomego...",
+        "chattingWithStranger": "Rozmowa z nieznajomym"
+    },
+    "Gender": {
+        "male": "👨 Mężczyzna",
+        "female": "👩 Kobieta",
+        "preferNotSay": "👤 Preferuję nie mówić",
+        "any": "👤 Dowolna",
+        "croissant": "🥐 Croissant"
+    },
+    "Room": {
+        "Input": {
+            "send": "Wyślij",
+            "next": "Dalej",
+            "placeholder": "Napisz do nieznajomego..."
+        },
+        "System": {
+            "youJoinedToTheRoom": "Dołączyłeś/aś do pokoju",
+            "strangerLeftTheRoom": "Nieznajomy opuścił pokój"
+        },
+        "strangerIsTyping": "Nieznajomy pisze..."
+    },
+    "Queue": {
+        "waitingForStranger": "Oczekiwanie na nieznajomego..."
+    },
+    "Button": {
+        "close": "Zamknij",
+        "cancel": "Anuluj"
+    },
+    "Footer": {
+        "allRightsReserved": "Wszelkie prawa zastrzeżone."
+    }
 }

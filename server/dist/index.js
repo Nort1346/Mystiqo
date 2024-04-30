@@ -48,6 +48,7 @@ io.on('connection', (socket) => {
         if (user && user.roomId) {
             socket.leave(user.roomId);
             io.to(user.roomId).emit('strangerLeftRoom');
+            console.log('LEFT');
             users[socket.id].roomId = null;
         }
         const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === Gender.PreferNotSay) &&

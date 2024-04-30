@@ -19,10 +19,10 @@ function NavBar({ goToHome }: { goToHome: () => void }) {
     }, []);
 
     return (
-        <Navbar className='px-3'>
+        <Navbar className='px-3' style={{height: '60px'}}>
             <Navbar.Brand onClick={goToHome}>Mystiqo</Navbar.Brand>
             <Nav className="ms-auto d-flex align-items-center">
-                <Alert variant="success" className='rounded-pill font-monospace p-1 m-0 fs-6'>
+                <Alert variant="success" className='rounded-pill font-monospace p-1 px-2 m-0 fs-6'>
                     Online: {onlineCount}
                 </Alert>
             </Nav>

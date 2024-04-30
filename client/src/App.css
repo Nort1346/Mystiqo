@@ -6,6 +6,24 @@
   height: 75vh;
 }
 
-.btn-gender.active {
-  border: 2px solid #000; /* zmieniamy obramowanie dla aktywnego przycisku */
+::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #363636;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b4b4b;
+}
+
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
