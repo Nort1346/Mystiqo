@@ -32,7 +32,7 @@ function Message({ message, userId }: { message: MessageData, userId: string }) 
 
     return (
         <div className={`d-flex justify-content-${isMe ? 'end' : 'start'} my-1`}>
-            <span className={`rounded bg-${isMe ? 'success' : 'primary'} py-1 px-2 w-auto text-wrap text-break m${isMe ? 's' : 'e'}-5`}>
+            <span className={`rounded-top bg-${isMe ? 'success' : 'primary'} ${isMe ? 'rounded-start' : 'rounded-end'} py-1 px-2 w-auto text-wrap text-break m${isMe ? 's' : 'e'}-5`}>
                 {formatContent(message.content)}
             </span>
         </div>

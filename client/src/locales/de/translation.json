@@ -1,0 +1,47 @@
+{
+    "Home": {
+        "mystiqoDescription": "Unterhalte dich mit Fremden",
+        "startChatting": "Chat starten",
+        "personalize": "Personalisieren"
+    },
+    "PersonalizeModal": {
+        "title": "Verbessere deine Erfahrungen!",
+        "whatIsYourGender": "Was ist dein Geschlecht?",
+        "inWhichLanguageDoYouPreferToChat": "In welcher Sprache möchtest du chatten?",
+        "whichGenderWouldYouLikeToChatWith": "Mit welchem Geschlecht möchtest du chatten?"
+    },
+    "Title": {
+        "talkWithStrangers": "Unterhalte dich mit Fremden",
+        "waitingForStranger": "Warte auf einen Fremden...",
+        "chattingWithStranger": "Chatte mit einem Fremden"
+    },
+    "Gender": {
+        "male": "👨 Männlich",
+        "female": "👩 Weiblich",
+        "preferNotSay": "👤 Keine Angabe",
+        "any": "👤 Beliebig",
+        "croissant": "🥐 Croissant"
+    },
+    "Room": {
+        "Input": {
+            "send": "Senden",
+            "next": "Nächstes",
+            "placeholder": "Nachricht an Fremden..."
+        },
+        "System": {
+            "youJoinedToTheRoom": "Du hast den Raum betreten",
+            "strangerLeftTheRoom": "Der Fremde hat den Raum verlassen"
+        },
+        "strangerIsTyping": "Ein Fremder tippt..."
+    },
+    "Queue": {
+        "waitingForStranger": "Warte auf einen Fremden..."
+    },
+    "Button": {
+        "close": "Schließen",
+        "cancel": "Abbrechen"
+    },
+    "Footer": {
+        "allRightsReserved": "Alle Rechte vorbehalten."
+    }
+}

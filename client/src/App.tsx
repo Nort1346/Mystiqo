@@ -28,7 +28,8 @@ enum ChatStatus {
 
 enum Language {
   English = 'en',
-  Polish = 'pl'
+  Polish = 'pl',
+  German = 'de'
 };
 
 enum Gender {
@@ -55,7 +56,7 @@ function App() {
   const [status, setStatus] = useState<Status>(Status.home);
   const [chatStatus, setChatStatus] = useState<ChatStatus>(ChatStatus.inactive);
   const [inputValue, setInputValue] = useState('');
-  const [userId, setUserId] = useState<string>('');
+  const [userId, setUserId] = useState<string>(localStorage.getItem('userId') ?? '');
   const [showConfigModal, setShowConfigModal] = useState(false);
   const handleCloseConfigModal = () => setShowConfigModal(false);
   const handleShowConfigModal = () => setShowConfigModal(true);
@@ -69,6 +70,7 @@ function App() {
   useEffect(() => {
     function onUserId(userId: string) {
       setUserId(userId);
+      localStorage.setItem('userId', userId);
     }
 
     socket.emit('getUserId');
@@ -92,6 +94,7 @@ function App() {
 
     function onJoinedRoom() {
       setMessages([{ content: t('Room.System.youJoinedToTheRoom'), authorId: 'SYSTEM' }]);
+      setInputValue("");
       setStatus(Status.chat);
       setChatStatus(ChatStatus.active);
     }
@@ -162,12 +165,20 @@ function App() {
       setScreenHeight(window.innerHeight);
     };
 
+    const onEscNextStranger = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        nextTalk();
+      }
+    }
+
     window.addEventListener('resize', handleResize);
+    window.addEventListener("keydown", onEscNextStranger);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener("keydown", onEscNextStranger);
     };
-  }, []);
+  });
 
   const handleGenderChange = (value: Gender) => {
     setGender(value);
@@ -240,10 +251,12 @@ function App() {
 
   const selectInput = {
     border: '0.3em solid #FFF',
+    maxWidth: 'max-content'
   }
 
   const inputDefault = {
-    border: '0.3em solid rgba(0,0,0,0)'
+    border: '0.3em solid rgba(0,0,0,0)',
+    maxWidth: 'max-content'
   }
 
   return (
@@ -265,29 +278,30 @@ function App() {
               <Modal.Body>
                 <h5>{t('PersonalizeModal.whatIsYourGender')}</h5>
                 <div className='d-flex justify-content-center mb-3'>
-                  <ToggleButtonGroup type="radio" name="gender-options" value={gender} onChange={handleGenderChange}>
-                    <ToggleButton variant="secondary rounded-pill" className='mx-1 p-1' style={gender === Gender.PreferNotSay ? selectInput : inputDefault} value={Gender.PreferNotSay} id={'tbg-notsay-gender'}>{t('Gender.preferNotSay')}</ToggleButton>
-                    <ToggleButton variant="primary rounded-pill" className='mx-1 p-1' style={gender === Gender.Male ? selectInput : inputDefault} value={Gender.Male} id={'tbg-male-gender'}>{t('Gender.male')}</ToggleButton>
-                    <ToggleButton variant="success rounded-pill" className='mx-1 p-1' style={gender === Gender.Female ? selectInput : inputDefault} value={Gender.Female} id={'tbg-female-gender'}>{t('Gender.female')}</ToggleButton>
-                    <ToggleButton variant="warning rounded-pill" className='mx-1 p-1' style={gender === Gender.Croissant ? selectInput : inputDefault} value={Gender.Croissant} id={'tbg-croissant-gender'}>{t('Gender.croissant')}</ToggleButton>
+                  <ToggleButtonGroup type="radio" name="gender-options" value={gender} onChange={handleGenderChange} className='d-flex flex-row flex-wrap'>
+                    <ToggleButton variant="secondary rounded-pill" className='m-1 p-1 px-2' style={gender === Gender.PreferNotSay ? selectInput : inputDefault} value={Gender.PreferNotSay} id={'tbg-notsay-gender'}>{t('Gender.preferNotSay')}</ToggleButton>
+                    <ToggleButton variant="primary rounded-pill" className='m-1 p-1 px-2' style={gender === Gender.Male ? selectInput : inputDefault} value={Gender.Male} id={'tbg-male-gender'}>{t('Gender.male')}</ToggleButton>
+                    <ToggleButton variant="success rounded-pill" className='m-1 p-1 px-2' style={gender === Gender.Female ? selectInput : inputDefault} value={Gender.Female} id={'tbg-female-gender'}>{t('Gender.female')}</ToggleButton>
+                    <ToggleButton variant="warning rounded-pill" className='m-1 p-1 px-2' style={gender === Gender.Croissant ? selectInput : inputDefault} value={Gender.Croissant} id={'tbg-croissant-gender'}>{t('Gender.croissant')}</ToggleButton>
                   </ToggleButtonGroup>
                 </div>
                 <hr />
                 <h5>{t('PersonalizeModal.inWhichLanguageDoYouPreferToChat')}</h5>
                 <div className='d-flex justify-content-center mb-3'>
-                  <ToggleButtonGroup type="radio" name="language-options" value={language} onChange={handleLanguageChange}>
-                    <ToggleButton variant="primary rounded-pill" className='mx-1 p-1' style={language === Language.English ? selectInput : inputDefault} value={Language.English} id={'tbg-english-language'}>🇺🇸 English</ToggleButton>
-                    <ToggleButton variant="danger rounded-pill" className='mx-1 p-1' style={language === Language.Polish ? selectInput : inputDefault} value={Language.Polish} id={'tbg-polish-language'}>🇵🇱 Polski</ToggleButton>
+                  <ToggleButtonGroup type="radio" name="language-options" value={language} onChange={handleLanguageChange} className='d-flex flex-row flex-wrap'>
+                    <ToggleButton variant="primary rounded-pill" className='m-1 p-1 px-2' style={language === Language.English ? selectInput : inputDefault} value={Language.English} id={'tbg-english-language'}>🇺🇸 English</ToggleButton>
+                    <ToggleButton variant="danger rounded-pill" className='m-1 p-1 px-2' style={language === Language.Polish ? selectInput : inputDefault} value={Language.Polish} id={'tbg-polish-language'}>🇵🇱 Polski</ToggleButton>
+                    <ToggleButton variant="danger rounded-pill" className='m-1 p-1 px-2' style={language === Language.German ? selectInput : inputDefault} value={Language.German} id={'tbg-german-language'}>🇩🇪 Deutsch</ToggleButton>
                   </ToggleButtonGroup>
                 </div>
                 <hr />
                 <h5>{t('PersonalizeModal.whichGenderWouldYouLikeToChatWith')}</h5>
                 <div className='d-flex justify-content-center mb-3'>
-                  <ToggleButtonGroup type="radio" name="prefer-gender-options" value={preferGender} onChange={handlePreferGenderChange}>
-                    <ToggleButton variant="secondary rounded-pill" className='mx-1 p-1' style={preferGender === Gender.PreferNotSay ? selectInput : inputDefault} value={Gender.PreferNotSay} id={'tbg-notsay-prefer-gender'}>{t('Gender.any')}</ToggleButton>
-                    <ToggleButton variant="primary rounded-pill" className='mx-1 p-1' style={preferGender === Gender.Male ? selectInput : inputDefault} value={Gender.Male} id={'tbg-male-prefer-gender'}>{t('Gender.male')}</ToggleButton>
-                    <ToggleButton variant="success rounded-pill" className='mx-1 p-1' style={preferGender === Gender.Female ? selectInput : inputDefault} value={Gender.Female} id={'tbg-female-prefer-gender'}>{t('Gender.female')}</ToggleButton>
-                    <ToggleButton variant="warning rounded-pill" className='mx-1 p-1' style={preferGender === Gender.Croissant ? selectInput : inputDefault} value={Gender.Croissant} id={'tbg-croissant-prefer-gender'}>{t('Gender.croissant')}</ToggleButton>
+                  <ToggleButtonGroup type="radio" name="prefer-gender-options" value={preferGender} onChange={handlePreferGenderChange} className='d-flex flex-row flex-wrap'>
+                    <ToggleButton variant="secondary rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.PreferNotSay ? selectInput : inputDefault} value={Gender.PreferNotSay} id={'tbg-notsay-prefer-gender'}>{t('Gender.any')}</ToggleButton>
+                    <ToggleButton variant="primary rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Male ? selectInput : inputDefault} value={Gender.Male} id={'tbg-male-prefer-gender'}>{t('Gender.male')}</ToggleButton>
+                    <ToggleButton variant="success rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Female ? selectInput : inputDefault} value={Gender.Female} id={'tbg-female-prefer-gender'}>{t('Gender.female')}</ToggleButton>
+                    <ToggleButton variant="warning rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Croissant ? selectInput : inputDefault} value={Gender.Croissant} id={'tbg-croissant-prefer-gender'}>{t('Gender.croissant')}</ToggleButton>
                   </ToggleButtonGroup>
                 </div>
               </Modal.Body>
@@ -331,7 +345,9 @@ function App() {
                     as="textarea"
                     size='lg'
                     rows={1}
-                    disabled={chatStatus === ChatStatus.inactive} />
+                    disabled={chatStatus === ChatStatus.inactive}
+                    autoFocus
+                  />
                   <Button onClick={sendMessage} disabled={chatStatus === ChatStatus.inactive}>
                     {t('Room.Input.send')}
                   </Button>
