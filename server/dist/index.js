@@ -9,50 +9,37 @@ const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const enums_1 = require("./types/enums");
+const node_process_1 = require("node:process");
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
-const PORT = 3000;
+const PORT = process.env.PORT;
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: "*"
+        origin: node_process_1.env.CORS_ORIGIN
     }
 });
 app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'client', 'build')));
 app.use((0, cors_1.default)());
-var Language;
-(function (Language) {
-    Language["English"] = "en";
-    Language["Polish"] = "pl";
-})(Language || (Language = {}));
-;
-var Gender;
-(function (Gender) {
-    Gender["Male"] = "male";
-    Gender["Female"] = "female";
-    Gender["Croissant"] = "croissant";
-    Gender["PreferNotSay"] = "preferNotSay";
-})(Gender || (Gender = {}));
-;
-;
 const users = {};
 const queue = {};
-io.on('connection', (socket) => {
+io.on(enums_1.Events.Connection, (socket) => {
     if (!users[socket.id])
         users[socket.id] = { id: (0, uuid_1.v4)(), roomId: null };
-    io.emit('onlineCount', Object.keys(users).length);
-    console.log(Object.keys(users).length);
-    socket.on('joinQueue', (filter) => {
+    io.emit(enums_1.Events.OnlineCount, Object.keys(users).length);
+    socket.on(enums_1.Events.JoinQueue, (filter) => {
         if (queue[socket.id])
             return;
         const user = users[socket.id];
         if (user && user.roomId) {
             socket.leave(user.roomId);
-            io.to(user.roomId).emit('strangerLeftRoom');
-            console.log('LEFT');
+            socket.broadcast.to(user.roomId).emit(enums_1.Events.StrangerLeftRoom);
             users[socket.id].roomId = null;
         }
-        const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === Gender.PreferNotSay) &&
-            (item.preferGender === filter.gender || item.preferGender === Gender.PreferNotSay) &&
+        const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === enums_1.Gender.PreferNotSay) &&
+            (item.preferGender === filter.gender || item.preferGender === enums_1.Gender.PreferNotSay) &&
             item.language === filter.language);
         if (match) {
             const roomId = `room-${(0, uuid_1.v4)()}`;
@@ -65,63 +52,53 @@ io.on('connection', (socket) => {
             users[socket.id].roomId = roomId;
             delete queue[matchedUserId];
             delete queue[socket.id];
-            io.to(roomId).emit('joinedRoom');
-            console.log(`Room ${roomId} created and users ${matchedUserId} and ${socket.id} joined`);
+            io.to(roomId).emit(enums_1.Events.JoinedRoom);
         }
         else {
             queue[socket.id] = filter;
-            console.log(`User ${socket.id} joined the queue`);
         }
     });
-    socket.on('cancelQueue', () => {
+    socket.on(enums_1.Events.CancelQueue, () => {
         if (!queue[socket.id])
             return;
         delete queue[socket.id];
-        console.log(`User ${socket.id} cancel queue`);
-        console.log(queue);
     });
-    socket.on('sendMessage', (message) => {
+    socket.on(enums_1.Events.SendMessage, (message) => {
         const user = users[socket.id];
         if (user && user.roomId) {
-            console.log('sended', message);
-            io.to(user.roomId).emit('message', user.id, message);
+            io.to(user.roomId).emit('message', user.id, message.trim());
         }
     });
-    socket.on('leaveRoom', () => {
+    socket.on(enums_1.Events.LeaveRoom, () => {
         const user = users[socket.id];
         if (user && user.roomId) {
             socket.leave(user.roomId);
             const roomId = user.roomId;
             user.roomId = null;
-            io.to(roomId).emit('strangerLeftRoom');
-            console.log(`User ${socket.id} left the room`);
+            socket.broadcast.to(roomId).emit(enums_1.Events.StrangerLeftRoom);
         }
     });
-    socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
+    socket.on(enums_1.Events.Disconnect, () => {
         const user = users[socket.id];
         if (user && user.roomId) {
-            io.to(user.roomId).emit('strangerLeftRoom');
+            socket.broadcast.to(user.roomId).emit(enums_1.Events.StrangerLeftRoom);
         }
         delete users[socket.id];
         if (queue[socket.id]) {
             delete queue[socket.id];
-            console.log(`User ${socket.id} removed from queue`);
         }
-        console.log(Object.keys(users).length);
-        io.emit('onlineCount', Object.keys(users).length);
+        io.emit(enums_1.Events.OnlineCount, Object.keys(users).length);
     });
-    socket.on('getOnlineCount', () => {
-        socket.emit('onlineCount', Object.keys(users).length);
+    socket.on(enums_1.Events.GetOnlineCount, () => {
+        socket.emit(enums_1.Events.OnlineCount, Object.keys(users).length);
     });
-    socket.on('getUserId', () => {
-        socket.emit('userId', users[socket.id].id);
+    socket.on(enums_1.Events.GetUserId, () => {
+        socket.emit(enums_1.Events.UserId, users[socket.id].id);
     });
-    socket.on('typing', () => {
-        console.log('TYPING');
+    socket.on(enums_1.Events.Typing, () => {
         const user = users[socket.id];
         if (user && user.roomId)
-            socket.broadcast.to(user.roomId).emit('typing', user.id);
+            socket.broadcast.to(user.roomId).emit(enums_1.Events.Typing, user.id);
     });
 });
 server.listen(PORT, () => {

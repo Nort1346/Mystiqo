@@ -23,7 +23,17 @@
   background: #4b4b4b;
 }
 
+.anek-devanagari-font {
+  font-family: "Anek Devanagari", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
 body {
   min-height: 100vh;
   min-height: -webkit-fill-available;
+  font-family: 'Mulish' !important;
 }

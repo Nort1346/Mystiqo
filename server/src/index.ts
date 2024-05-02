@@ -4,59 +4,38 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import { QueueItem, User } from './types/interfaces';
+import { Events, Gender } from './types/enums';
+import { env } from 'node:process';
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 3000;
-
+const PORT = process.env.PORT;
 const io = new Server(server, {
     cors: {
-        origin: "*"
+        origin: env.CORS_ORIGIN
     }
 });
 
 app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')));
 app.use(cors());
 
-interface User {
-    id: string,
-    roomId: string | null
-}
-
-enum Language {
-    English = 'en',
-    Polish = 'pl'
-};
-
-enum Gender {
-    Male = 'male',
-    Female = 'female',
-    Croissant = 'croissant',
-    PreferNotSay = 'preferNotSay'
-};
-
-interface QueueItem {
-    gender: Gender;
-    language: Language;
-    preferGender: Gender;
-};
-
 const users: { [key: string]: User } = {};
 const queue: Record<string, QueueItem> = {};
 
-io.on('connection', (socket) => {
+io.on(Events.Connection, (socket) => {
     if (!users[socket.id])
         users[socket.id] = { id: uuidv4(), roomId: null };
-    io.emit('onlineCount', Object.keys(users).length);
-    console.log(Object.keys(users).length);
+    io.emit(Events.OnlineCount, Object.keys(users).length);
 
-    socket.on('joinQueue', (filter: { gender: Gender, language: Language, preferGender: Gender }) => {
+    socket.on(Events.JoinQueue, (filter: QueueItem) => {
         if (queue[socket.id]) return;
         const user = users[socket.id];
         if (user && user.roomId) {
             socket.leave(user.roomId);
-            io.to(user.roomId).emit('strangerLeftRoom');
-            console.log('LEFT')
+            socket.broadcast.to(user.roomId).emit(Events.StrangerLeftRoom);
             users[socket.id].roomId = null;
         }
 
@@ -82,71 +61,60 @@ io.on('connection', (socket) => {
             delete queue[matchedUserId];
             delete queue[socket.id];
 
-            io.to(roomId).emit('joinedRoom');
-            console.log(`Room ${roomId} created and users ${matchedUserId} and ${socket.id} joined`);
+            io.to(roomId).emit(Events.JoinedRoom);
         } else {
             queue[socket.id] = filter;
-            console.log(`User ${socket.id} joined the queue`);
         }
     });
 
-    socket.on('cancelQueue', () => {
+    socket.on(Events.CancelQueue, () => {
         if (!queue[socket.id]) return;
         delete queue[socket.id];
-        console.log(`User ${socket.id} cancel queue`);
-        console.log(queue);
     });
 
-    socket.on('sendMessage', (message: string) => {
+    socket.on(Events.SendMessage, (message: string) => {
         const user = users[socket.id];
         if (user && user.roomId) {
-            console.log('sended', message)
-            io.to(user.roomId).emit('message', user.id, message);
+            io.to(user.roomId).emit('message', user.id, message.trim());
         }
     });
 
-    socket.on('leaveRoom', () => {
+    socket.on(Events.LeaveRoom, () => {
         const user = users[socket.id];
         if (user && user.roomId) {
             socket.leave(user.roomId);
             const roomId = user.roomId;
             user.roomId = null;
-            io.to(roomId).emit('strangerLeftRoom');
-            console.log(`User ${socket.id} left the room`);
+            socket.broadcast.to(roomId).emit(Events.StrangerLeftRoom);
         }
     });
 
-    socket.on('disconnect', () => {
-        console.log('A user disconnected:', socket.id);
+    socket.on(Events.Disconnect, () => {
         const user = users[socket.id];
         if (user && user.roomId) {
-            io.to(user.roomId).emit('strangerLeftRoom');
+            socket.broadcast.to(user.roomId).emit(Events.StrangerLeftRoom);
         }
         delete users[socket.id];
         if (queue[socket.id]) {
             delete queue[socket.id];
-            console.log(`User ${socket.id} removed from queue`);
         }
-        console.log(Object.keys(users).length);
-        io.emit('onlineCount', Object.keys(users).length);
+        io.emit(Events.OnlineCount, Object.keys(users).length);
     });
 
-    socket.on('getOnlineCount', () => {
-        socket.emit('onlineCount', Object.keys(users).length);
+    socket.on(Events.GetOnlineCount, () => {
+        socket.emit(Events.OnlineCount, Object.keys(users).length);
     });
 
-    socket.on('getUserId', () => {
-        socket.emit('userId', users[socket.id].id);
+    socket.on(Events.GetUserId, () => {
+        socket.emit(Events.UserId, users[socket.id].id);
     });
 
-    socket.on('typing', () => {
-        console.log('TYPING')
+    socket.on(Events.Typing, () => {
         const user = users[socket.id];
         if (user && user.roomId)
-            socket.broadcast.to(user.roomId).emit('typing', user.id);
+            socket.broadcast.to(user.roomId).emit(Events.Typing, user.id);
     });
 });
-
 
 server.listen(PORT, () => {
     console.log(`Server listening on port: ${PORT}`);
