@@ -1,11 +1,11 @@
 {
-  "name": "mystiqo",
+  "name": "mystiqo-server",
   "version": "1.0.0",
-  "description": "A full-stack app for anonymous chats with strangers.",
-  "main": "index.js",
+  "description": "Mystiqo backend",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server/dist/index"
+    "start": "node dist/index"
   },
   "keywords": [
     "chat",
