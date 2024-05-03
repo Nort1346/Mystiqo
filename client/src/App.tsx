@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { MessageData } from './components/types/interfaces';
 import { ChatStatus, Events, Gender, Language, Status } from './components/types/enums';
 import { inputDefault, inputSelected } from './components/styles/input';
-import { isMobileDevice } from './components/functions/functions';
+import { isMobileDevice, playJoinRoomSound, playMessageAppearSound } from './components/functions/functions';
 
 function App() {
   const { t } = useTranslation()
@@ -74,6 +74,7 @@ function App() {
     let timeout: NodeJS.Timeout | null = null;
     function onMessage(authorId: string, content: string) {
       if (authorId !== userId) {
+        playMessageAppearSound();
         if (timeout) {
           clearTimeout(timeout);
         }
@@ -83,6 +84,7 @@ function App() {
     }
 
     function onJoinedRoom() {
+      playJoinRoomSound();
       setMessages([{ content: t('Room.System.youJoinedToTheRoom'), authorId: 'SYSTEM' }]);
       setInputValue("");
       setStatus(Status.Chat);
@@ -246,7 +248,7 @@ function App() {
         {status === Status.Home && (
           <Container>
             <div className='h-75vh d-flex align-items-center justify-content-center flex-column text-center'>
-              <h1>Mystiqo</h1>
+              <h1 style={{ fontFamily: 'Space Mono' }}>Mystiqo</h1>
               <p className='text-primary-emphasis'>{t('Home.mystiqoDescription')}</p>
               <Button variant='light rounded-pill' className='mb-2' onClick={joinQueue} size="lg">{t('Home.startChatting')}</Button>
               <Button variant='dark rounded-pill' onClick={handleShowConfigModal}>{t('Home.personalize')}</Button>
@@ -278,7 +280,7 @@ function App() {
                 <h5>{t('PersonalizeModal.whichGenderWouldYouLikeToChatWith')}</h5>
                 <div className='d-flex justify-content-center mb-3'>
                   <ToggleButtonGroup type="radio" name="prefer-gender-options" value={preferGender} onChange={handlePreferGenderChange} className='d-flex flex-row flex-wrap justify-content-center'>
-                    <ToggleButton variant="secondary rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.PreferNotSay ? inputSelected : inputDefault} value={Gender.PreferNotSay} id={'tbg-notsay-prefer-gender'}>{t('Gender.any')}</ToggleButton>
+                    <ToggleButton variant="secondary rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.PreferNotSay ? inputSelected : inputDefault} value={Gender.PreferNotSay} id={'tbg-any-prefer-gender'}>{t('Gender.any')}</ToggleButton>
                     <ToggleButton variant="primary rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Male ? inputSelected : inputDefault} value={Gender.Male} id={'tbg-male-prefer-gender'}>{t('Gender.male')}</ToggleButton>
                     <ToggleButton variant="success rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Female ? inputSelected : inputDefault} value={Gender.Female} id={'tbg-female-prefer-gender'}>{t('Gender.female')}</ToggleButton>
                     <ToggleButton variant="warning rounded-pill" className='m-1 p-1 px-2' style={preferGender === Gender.Croissant ? inputSelected : inputDefault} value={Gender.Croissant} id={'tbg-croissant-prefer-gender'}>{t('Gender.croissant')}</ToggleButton>
@@ -301,7 +303,7 @@ function App() {
           <>
             <div className='mb-3 overflow-auto' style={{ height: `calc(${screenHeight}px - 160px)` }} ref={messageContainerRef}>
               <Container>
-                <div className='p-3 d-flex flex-column'>
+                <div className='p-3 px-1 d-flex flex-column'>
                   {messages.map((ele, index) => (
                     <Message key={index} message={ele} userId={userId} />
                   ))}
