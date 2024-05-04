@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 import { QueueItem, User } from './types/interfaces';
 import { Events, Gender } from './types/enums';
 import { env } from 'node:process';
+import helmet from 'helmet';
 dotenv.config();
 
 const app = express();
@@ -21,6 +22,7 @@ const io = new Server(server, {
 
 app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')));
 app.use(cors());
+app.use(helmet());
 
 const users: { [key: string]: User } = {};
 const queue: Record<string, QueueItem> = {};
