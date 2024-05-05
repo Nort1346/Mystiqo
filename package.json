@@ -1,0 +1,25 @@
+{
+  "name": "mystiqo",
+  "version": "1.0.0",
+  "description": "A full-stack app for anonymous chats with strangers.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-server": "cd server && npm start",
+    "start-client": "cd client && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nort1346/Mystiqo.git"
+  },
+  "keywords": [
+    "chat",
+    "anonymous",
+    "talk"
+  ],
+  "author": "Nort1346",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Nort1346/Mystiqo/issues"
+  },
+  "homepage": "https://github.com/Nort1346/Mystiqo#readme"
+}

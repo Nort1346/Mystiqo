@@ -1,8 +1,10 @@
 {
-  "name": "mystiqo",
+  "name": "mystiqo-client",
   "description": "Mystiqo frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "author": "Nort1346",
+  "license": "MIT",
   "proxy": "http://localhost:3000",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
