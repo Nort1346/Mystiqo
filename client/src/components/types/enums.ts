@@ -34,6 +34,7 @@ export enum Events {
     UserId = 'userId',
     GetUserId = 'getUserId',
     Connect = 'connect',
+    Disconnect = 'disconnect',
     GetOnlineCount = 'getOnlineCount',
     OnlineCount = 'onlineCount'
 }

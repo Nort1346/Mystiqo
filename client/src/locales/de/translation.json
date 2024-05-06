@@ -43,5 +43,9 @@
     },
     "Footer": {
         "allRightsReserved": "Alle Rechte vorbehalten."
+    },
+    "ConnectionStatus": {
+        "disconnected": "Getrennt",
+        "theServerHasBeenDisconnected": "Der Server wurde getrennt."
     }
 }

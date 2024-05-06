@@ -13,9 +13,11 @@ import { MessageData } from './components/types/interfaces';
 import { ChatStatus, Events, Gender, Language, Status } from './components/types/enums';
 import { inputDefault, inputSelected } from './components/styles/input';
 import { isMobileDevice, playJoinRoomSound, playMessageAppearSound } from './components/functions/functions';
+import ConnectionStatusModal from './components/ConnectionStatusModal';
 
 function App() {
   const { t } = useTranslation()
+  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [status, setStatus] = useState<Status>(Status.Home);
   const [chatStatus, setChatStatus] = useState<ChatStatus>(ChatStatus.Inactive);
@@ -59,14 +61,21 @@ function App() {
     }
 
     function onConnect() {
+      setIsConnected(true);
       socket.emit(Events.GetUserId);
     }
 
+    function onDisconnect() {
+      setIsConnected(false);
+    }
+
     socket.on(Events.Connect, onConnect);
+    socket.on(Events.Disconnect, onDisconnect);
     socket.on(Events.UserId, onUserId);
     return () => {
       socket.off(Events.UserId, onUserId);
       socket.off(Events.Connect, onConnect);
+      socket.off(Events.Disconnect, onDisconnect);
     };
   }, [userId]);
 
@@ -342,6 +351,7 @@ function App() {
           </>
         )}
       </Container>
+      <ConnectionStatusModal show={!isConnected} />
     </div>
   );
 }
