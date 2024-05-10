@@ -17,7 +17,7 @@ import ConnectionStatusModal from './components/ConnectionStatusModal';
 
 function App() {
   const { t } = useTranslation()
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isConnected, setIsConnected] = useState<boolean>(true);
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [status, setStatus] = useState<Status>(Status.Home);
   const [chatStatus, setChatStatus] = useState<ChatStatus>(ChatStatus.Inactive);
@@ -65,14 +65,20 @@ function App() {
       socket.emit(Events.GetUserId);
     }
 
+    function onConnectError() {
+      setIsConnected(false);
+    }
+
     function onDisconnect() {
       setIsConnected(false);
     }
 
+    socket.on(Events.ConnectError, onConnectError);
     socket.on(Events.Connect, onConnect);
     socket.on(Events.Disconnect, onDisconnect);
     socket.on(Events.UserId, onUserId);
     return () => {
+      socket.off(Events.ConnectError, onConnectError);
       socket.off(Events.UserId, onUserId);
       socket.off(Events.Connect, onConnect);
       socket.off(Events.Disconnect, onDisconnect);

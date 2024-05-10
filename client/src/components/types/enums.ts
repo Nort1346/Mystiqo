@@ -33,6 +33,7 @@ export enum Events {
     SendMessage = 'sendMessage',
     UserId = 'userId',
     GetUserId = 'getUserId',
+    ConnectError = 'connect_error',
     Connect = 'connect',
     Disconnect = 'disconnect',
     GetOnlineCount = 'getOnlineCount',
