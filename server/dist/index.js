@@ -12,6 +12,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const enums_1 = require("./types/enums");
 const node_process_1 = require("node:process");
+const helmet_1 = __importDefault(require("helmet"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
@@ -23,6 +24,7 @@ const io = new socket_io_1.Server(server, {
 });
 app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'client', 'build')));
 app.use((0, cors_1.default)());
+app.use((0, helmet_1.default)());
 const users = {};
 const queue = {};
 io.on(enums_1.Events.Connection, (socket) => {
@@ -100,6 +102,18 @@ io.on(enums_1.Events.Connection, (socket) => {
         if (user && user.roomId)
             socket.broadcast.to(user.roomId).emit(enums_1.Events.Typing, user.id);
     });
+    socket.on(enums_1.Events.Error, (err) => {
+        console.error('Client Error', err.message);
+    });
+});
+io.on(enums_1.Events.Error, (err) => {
+    console.error('Socket.io server error:', err.message);
+});
+server.on(enums_1.Events.Error, (err) => {
+    console.error('Express error:', err.message);
+});
+app.get('/', (req, res) => {
+    res.send('Mystiqo Server Works');
 });
 server.listen(PORT, () => {
     console.log(`Server listening on port: ${PORT}`);

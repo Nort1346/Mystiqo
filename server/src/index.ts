@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -27,7 +27,7 @@ app.use(helmet());
 const users: { [key: string]: User } = {};
 const queue: Record<string, QueueItem> = {};
 
-io.on(Events.Connection, (socket) => {
+io.on(Events.Connection, (socket: Socket) => {
     if (!users[socket.id])
         users[socket.id] = { id: uuidv4(), roomId: null };
     io.emit(Events.OnlineCount, Object.keys(users).length);
@@ -116,6 +116,22 @@ io.on(Events.Connection, (socket) => {
         if (user && user.roomId)
             socket.broadcast.to(user.roomId).emit(Events.Typing, user.id);
     });
+
+    socket.on(Events.Error, (err: Error) => {
+        console.error('Client Error', err.message);
+    });
+});
+
+io.on(Events.Error, (err: Error) => {
+    console.error('Socket.io server error:', err.message);
+});
+
+server.on(Events.Error, (err: Error) => {
+    console.error('Express error:', err.message);
+});
+
+app.get('/', (req, res) => {
+    res.send('Mystiqo Server Works');
 });
 
 server.listen(PORT, () => {

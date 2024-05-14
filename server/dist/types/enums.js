@@ -6,7 +6,7 @@ var Language;
     Language["English"] = "en";
     Language["Polish"] = "pl";
     Language["German"] = "de";
-})(Language = exports.Language || (exports.Language = {}));
+})(Language || (exports.Language = Language = {}));
 ;
 var Gender;
 (function (Gender) {
@@ -14,7 +14,7 @@ var Gender;
     Gender["Female"] = "female";
     Gender["Croissant"] = "croissant";
     Gender["PreferNotSay"] = "preferNotSay";
-})(Gender = exports.Gender || (exports.Gender = {}));
+})(Gender || (exports.Gender = Gender = {}));
 ;
 var Events;
 (function (Events) {
@@ -32,4 +32,5 @@ var Events;
     Events["GetUserId"] = "getUserId";
     Events["UserId"] = "userId";
     Events["Connection"] = "connection";
-})(Events = exports.Events || (exports.Events = {}));
+    Events["Error"] = "error";
+})(Events || (exports.Events = Events = {}));

@@ -25,5 +25,6 @@ export enum Events {
     GetOnlineCount = 'getOnlineCount',
     GetUserId = 'getUserId',
     UserId = 'userId',
-    Connection = 'connection'
+    Connection = 'connection',
+    Error = 'error'
 }
