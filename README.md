@@ -3,9 +3,8 @@ A full-stack app for anonymous chats with strangers.
 
 ## How to Use Mystiqo?
 1. Improve your experience
-2. Start Chatting
-3. Await a Stranger
-4. Chat
+2. Await a Stranger
+3. Start Chatting
 
 ![Improve-your-experience](https://github.com/Nort1346/Mystiqo/assets/118631044/8f385595-08a2-47db-aebc-ca9fc6b8e006)
 ![Start-Chatting)](https://github.com/Nort1346/Mystiqo/assets/118631044/7890a840-2f98-469e-8d44-5f302a8c65f1)
