@@ -20,7 +20,7 @@ const io = new Server(server, {
     }
 });
 
-app.use(express.static(path.join(__dirname, '..', '..', 'client', 'build')));
+app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
 app.use(cors());
 app.use(helmet());
 

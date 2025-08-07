@@ -22,6 +22,7 @@
   },
   "include": [
     "src",
-    "custom.d.ts"
+    "custom.d.ts",
+    "env.d.ts"
   ]
 }

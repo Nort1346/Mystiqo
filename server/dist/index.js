@@ -22,7 +22,7 @@ const io = new socket_io_1.Server(server, {
         origin: node_process_1.env.CORS_ORIGIN
     }
 });
-app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'client', 'build')));
+app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'client', 'dist')));
 app.use((0, cors_1.default)());
 app.use((0, helmet_1.default)());
 const users = {};
