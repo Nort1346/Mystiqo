@@ -14,8 +14,13 @@
     "anonymous",
     "talk"
   ],
-  "author": "Nort1346",
+  "author": {
+    "name": "Nort1346",
+    "email": "contact@nort.space",
+    "url": "https://nort.space"
+  },
   "license": "MIT",
+  "private": false,
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/helmet": "^4.0.0",

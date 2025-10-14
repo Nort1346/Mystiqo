@@ -1,4 +1,3 @@
-import React from "react";
 import { Row, Col } from 'react-bootstrap';
 import { FaGithub } from "react-icons/fa";
 import { useTranslation } from "react-i18next";

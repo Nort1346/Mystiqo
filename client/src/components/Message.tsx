@@ -1,4 +1,3 @@
-import React from "react";
 import { MessageData } from "../types/interfaces";
 
 function Message({

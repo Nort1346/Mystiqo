@@ -1,5 +1,5 @@
-import messageAppearSound from '../sound_effects/messageAppear.wav';
-import joinedRoom from '../sound_effects/joinedRoom.wav';
+import messageAppearSound from '../sound-effects/messageAppear.wav';
+import joinedRoom from '../sound-effects/joinedRoom.wav';
 
 export function isMobileDevice() {
     return window.innerWidth <= 768;

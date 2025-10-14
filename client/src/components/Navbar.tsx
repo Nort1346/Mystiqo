@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar, Nav, Alert } from "react-bootstrap";
 import { socket } from "../socket";
 import { Events } from "../types/enums";

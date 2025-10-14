@@ -1,36 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Events = exports.Gender = exports.Language = void 0;
-var Language;
-(function (Language) {
-    Language["English"] = "en";
-    Language["Polish"] = "pl";
-    Language["German"] = "de";
-})(Language || (exports.Language = Language = {}));
-;
-var Gender;
-(function (Gender) {
-    Gender["Male"] = "male";
-    Gender["Female"] = "female";
-    Gender["Croissant"] = "croissant";
-    Gender["PreferNotSay"] = "preferNotSay";
-})(Gender || (exports.Gender = Gender = {}));
-;
-var Events;
-(function (Events) {
-    Events["Message"] = "message";
-    Events["JoinedRoom"] = "joinedRoom";
-    Events["Typing"] = "typing";
-    Events["StrangerLeftRoom"] = "strangerLeftRoom";
-    Events["JoinQueue"] = "joinQueue";
-    Events["CancelQueue"] = "cancelQueue";
-    Events["LeaveRoom"] = "leaveRoom";
-    Events["SendMessage"] = "sendMessage";
-    Events["OnlineCount"] = "onlineCount";
-    Events["Disconnect"] = "disconnect";
-    Events["GetOnlineCount"] = "getOnlineCount";
-    Events["GetUserId"] = "getUserId";
-    Events["UserId"] = "userId";
-    Events["Connection"] = "connection";
-    Events["Error"] = "error";
-})(Events || (exports.Events = Events = {}));
+exports.Events = exports.Genders = exports.Languages = void 0;
+exports.Languages = {
+    English: 'en',
+    Polish: 'pl',
+    German: 'de'
+};
+exports.Genders = {
+    Male: 'male',
+    Female: 'female',
+    Croissant: 'croissant',
+    PreferNotSay: 'preferNotSay'
+};
+exports.Events = {
+    Message: 'message',
+    JoinedRoom: 'joinedRoom',
+    Typing: 'typing',
+    StrangerLeftRoom: 'strangerLeftRoom',
+    JoinQueue: 'joinQueue',
+    CancelQueue: 'cancelQueue',
+    LeaveRoom: 'leaveRoom',
+    SendMessage: 'sendMessage',
+    OnlineCount: 'onlineCount',
+    Disconnect: 'disconnect',
+    GetOnlineCount: 'getOnlineCount',
+    GetUserId: 'getUserId',
+    UserId: 'userId',
+    Connection: 'connection',
+    Error: 'error'
+};
+//# sourceMappingURL=enums.js.map

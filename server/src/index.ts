@@ -6,7 +6,7 @@ import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { QueueItem, User } from './types/interfaces';
-import { Events, Gender } from './types/enums';
+import { Events, Genders } from './types/enums';
 import { env } from 'node:process';
 import helmet from 'helmet';
 dotenv.config();
@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
 app.use(cors());
 app.use(helmet());
 
-const users: { [key: string]: User } = {};
+const users: Record<string, User> = {};
 const queue: Record<string, QueueItem> = {};
 
 io.on(Events.Connection, (socket: Socket) => {
@@ -38,17 +38,18 @@ io.on(Events.Connection, (socket: Socket) => {
         if (user && user.roomId) {
             socket.leave(user.roomId);
             socket.broadcast.to(user.roomId).emit(Events.StrangerLeftRoom);
-            users[socket.id].roomId = null;
+            if (!users[socket.id]) return;
+            users[socket.id]!.roomId = null;
         }
 
         const match = Object.values(queue).find(item =>
-            (item.gender === filter.preferGender || filter.preferGender === Gender.PreferNotSay) &&
-            (item.preferGender === filter.gender || item.preferGender === Gender.PreferNotSay) &&
+            (item.gender === filter.preferGender || filter.preferGender === Genders.PreferNotSay) &&
+            (item.preferGender === filter.gender || item.preferGender === Genders.PreferNotSay) &&
             item.language === filter.language
         );
 
         if (match) {
-            const roomId = `room-${uuidv4()}`;
+            const roomId: `room-${string}` = `room-${uuidv4()}`;
             const matchedUserId = Object.keys(queue).find(id => queue[id] === match)!;
 
             const socket1 = io.sockets.sockets.get(matchedUserId);
@@ -57,8 +58,13 @@ io.on(Events.Connection, (socket: Socket) => {
             socket1?.join(roomId);
             socket2?.join(roomId);
 
-            users[matchedUserId].roomId = roomId;
-            users[socket.id].roomId = roomId;
+            const user = users[socket.id];
+            const matchedUser = users[matchedUserId];
+
+            if (user && matchedUser) {
+                user.roomId = roomId;
+                matchedUser.roomId = roomId;
+            }
 
             delete queue[matchedUserId];
             delete queue[socket.id];
@@ -108,7 +114,9 @@ io.on(Events.Connection, (socket: Socket) => {
     });
 
     socket.on(Events.GetUserId, () => {
-        socket.emit(Events.UserId, users[socket.id].id);
+        const user = users[socket.id];
+        if (!user) { socket.emit(Events.Error, 'User not found'); return; }
+        socket.emit(Events.UserId, user.id);
     });
 
     socket.on(Events.Typing, () => {

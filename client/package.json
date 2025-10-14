@@ -2,8 +2,12 @@
   "name": "mystiqo-client",
   "description": "Mystiqo frontend",
   "version": "1.0.1",
-  "private": true,
-  "author": "Nort1346",
+  "private": false,
+  "author": {
+    "name": "Nort1346",
+    "email": "contact@nort.space",
+    "url": "https://nort.space"
+  },
   "license": "MIT",
   "proxy": "http://localhost:3000",
   "type": "module",

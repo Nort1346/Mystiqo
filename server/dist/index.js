@@ -38,20 +38,26 @@ io.on(enums_1.Events.Connection, (socket) => {
         if (user && user.roomId) {
             socket.leave(user.roomId);
             socket.broadcast.to(user.roomId).emit(enums_1.Events.StrangerLeftRoom);
+            if (!users[socket.id])
+                return;
             users[socket.id].roomId = null;
         }
-        const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === enums_1.Gender.PreferNotSay) &&
-            (item.preferGender === filter.gender || item.preferGender === enums_1.Gender.PreferNotSay) &&
+        const match = Object.values(queue).find(item => (item.gender === filter.preferGender || filter.preferGender === enums_1.Genders.PreferNotSay) &&
+            (item.preferGender === filter.gender || item.preferGender === enums_1.Genders.PreferNotSay) &&
             item.language === filter.language);
         if (match) {
             const roomId = `room-${(0, uuid_1.v4)()}`;
             const matchedUserId = Object.keys(queue).find(id => queue[id] === match);
             const socket1 = io.sockets.sockets.get(matchedUserId);
             const socket2 = io.sockets.sockets.get(socket.id);
-            socket1 === null || socket1 === void 0 ? void 0 : socket1.join(roomId);
-            socket2 === null || socket2 === void 0 ? void 0 : socket2.join(roomId);
-            users[matchedUserId].roomId = roomId;
-            users[socket.id].roomId = roomId;
+            socket1?.join(roomId);
+            socket2?.join(roomId);
+            const user = users[socket.id];
+            const matchedUser = users[matchedUserId];
+            if (user && matchedUser) {
+                user.roomId = roomId;
+                matchedUser.roomId = roomId;
+            }
             delete queue[matchedUserId];
             delete queue[socket.id];
             io.to(roomId).emit(enums_1.Events.JoinedRoom);
@@ -95,7 +101,12 @@ io.on(enums_1.Events.Connection, (socket) => {
         socket.emit(enums_1.Events.OnlineCount, Object.keys(users).length);
     });
     socket.on(enums_1.Events.GetUserId, () => {
-        socket.emit(enums_1.Events.UserId, users[socket.id].id);
+        const user = users[socket.id];
+        if (!user) {
+            socket.emit(enums_1.Events.Error, 'User not found');
+            return;
+        }
+        socket.emit(enums_1.Events.UserId, user.id);
     });
     socket.on(enums_1.Events.Typing, () => {
         const user = users[socket.id];
@@ -118,3 +129,4 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
     console.log(`Server listening on port: ${PORT}`);
 });
+//# sourceMappingURL=index.js.map
